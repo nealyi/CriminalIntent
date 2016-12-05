@@ -8,15 +8,26 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * Created by nealyi on 16/12/5.
  */
 
 public class CrimeFragment extends Fragment {
+    @BindView(R.id.crime_title)
+    EditText mTitleField;
+    @BindView(R.id.crime_date)
+    Button mDateButton;
+    @BindView(R.id.crime_solved)
+    CheckBox mSolvedCheckBox;
     private Crime mCrime;
-    private EditText mTitleField;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -28,8 +39,20 @@ public class CrimeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_crime, container, false);
+        ButterKnife.bind(this, view);
 
-        mTitleField = (EditText) view.findViewById(R.id.crime_title);
+        initView();
+        setListener();
+
+        return view;
+    }
+
+    private void initView() {
+        mDateButton.setText(mCrime.getDate().toString());
+        mDateButton.setEnabled(false);
+    }
+
+    private void setListener() {
         mTitleField.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -48,6 +71,13 @@ public class CrimeFragment extends Fragment {
                 //这个方法被调用，那么说明s字符串的某个地方已经被改变。
             }
         });
-        return view;
+
+        mSolvedCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                //set the crime's solved property
+                mCrime.setSolved(isChecked);
+            }
+        });
     }
 }
