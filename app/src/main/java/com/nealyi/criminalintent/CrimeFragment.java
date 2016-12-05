@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,7 +49,7 @@ public class CrimeFragment extends Fragment {
     }
 
     private void initView() {
-        mDateButton.setText(mCrime.getDate().toString());
+        mDateButton.setText(DateFormat.format("E, MMMM dd, yyyy", mCrime.getDate()));
         mDateButton.setEnabled(false);
     }
 
