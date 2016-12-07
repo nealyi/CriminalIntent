@@ -14,6 +14,8 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 
+import java.util.UUID;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -22,6 +24,8 @@ import butterknife.ButterKnife;
  */
 
 public class CrimeFragment extends Fragment {
+    private static final String ARG_CRIME_ID = "crime_id";
+
     @BindView(R.id.crime_title)
     EditText mTitleField;
     @BindView(R.id.crime_date)
@@ -30,10 +34,23 @@ public class CrimeFragment extends Fragment {
     CheckBox mSolvedCheckBox;
     private Crime mCrime;
 
+    public static CrimeFragment newInstance(UUID crimeId) {
+        Bundle args = new Bundle();
+        args.putSerializable(ARG_CRIME_ID, crimeId);
+
+        CrimeFragment fragment = new CrimeFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mCrime = new Crime();
+//        mCrime = new Crime();
+//        UUID crimeId = (UUID) getActivity().getIntent().getSerializableExtra(CrimeActivity.EXTRA_CRIME_ID);
+        UUID crimeId = (UUID) getArguments().getSerializable(ARG_CRIME_ID);
+        mCrime = CrimeLab.get(getActivity()).getCrime(crimeId);
+
     }
 
     @Nullable
@@ -51,6 +68,8 @@ public class CrimeFragment extends Fragment {
     private void initView() {
         mDateButton.setText(DateFormat.format("E, MMMM dd, yyyy", mCrime.getDate()));
         mDateButton.setEnabled(false);
+        mTitleField.setText(mCrime.getTitle());
+        mSolvedCheckBox.setChecked(mCrime.isSolved());
     }
 
     private void setListener() {
