@@ -28,6 +28,7 @@ public class CrimePagerActivity extends FragmentActivity {
     ViewPager mViewPager;
 
     private List<Crime> mCrimes;
+    private UUID crimeId;
 
     public static Intent newIntent(Context packageContext, UUID crimeId) {
         Intent intent = new Intent(packageContext, CrimePagerActivity.class);
@@ -48,7 +49,7 @@ public class CrimePagerActivity extends FragmentActivity {
 
     private void initData() {
         mCrimes = CrimeLab.get(this).getCrimes();
-        UUID crimeId = (UUID) getIntent().getSerializableExtra(EXTRA_CRIME_ID);
+        crimeId = (UUID) getIntent().getSerializableExtra(EXTRA_CRIME_ID);
     }
 
     private void setListener() {
@@ -65,5 +66,12 @@ public class CrimePagerActivity extends FragmentActivity {
                 return CrimeFragment.newInstance(crime.getId());
             }
         });
+
+        for (int i = 0; i < mCrimes.size(); i++) {
+            if (mCrimes.get(i).getId().equals(crimeId)) {
+                mViewPager.setCurrentItem(i);
+                break;
+            }
+        }
     }
 }
