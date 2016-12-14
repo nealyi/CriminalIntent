@@ -31,6 +31,7 @@ public class CrimeListFragment extends Fragment {
     RecyclerView mCrimeRecycleView;
 
     private CrimeAdapter mAdapter;
+    private boolean mSubtitleVisible;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -127,6 +128,13 @@ public class CrimeListFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.fragment_crime_list, menu);
+
+        MenuItem subtilteItem = menu.findItem(R.id.menu_item_show_subtitle);
+        if (mSubtitleVisible) {
+            subtilteItem.setTitle(R.string.hide_subtitle);
+        } else {
+            subtilteItem.setTitle(R.string.show_subtitle);
+        }
     }
 
     @Override
@@ -139,6 +147,8 @@ public class CrimeListFragment extends Fragment {
                 startActivity(intent);
                 return true;
             case R.id.menu_item_show_subtitle:
+                mSubtitleVisible = !mSubtitleVisible;
+                getActivity().invalidateOptionsMenu();
                 updateSubtitle();
                 return true;
             default:
@@ -150,6 +160,10 @@ public class CrimeListFragment extends Fragment {
         CrimeLab cirmeLab = CrimeLab.get(getActivity());
         int crimeCount = cirmeLab.getCrimes().size();
         String subtitle = getString(R.string.subtitle_format, crimeCount);
+
+        if (!mSubtitleVisible) {
+            subtitle = null;
+        }
 
         AppCompatActivity activity = (AppCompatActivity) getActivity();
         activity.getSupportActionBar().setTitle(subtitle);
