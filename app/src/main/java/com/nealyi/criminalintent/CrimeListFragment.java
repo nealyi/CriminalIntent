@@ -1,5 +1,6 @@
 package com.nealyi.criminalintent;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -17,6 +18,7 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 
 import java.util.List;
+import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -28,6 +30,7 @@ import butterknife.ButterKnife;
 public class CrimeListFragment extends Fragment {
 
     private static final String SAVED_SUBTITLE_VISSIBLE = "subtitle";
+    private static final int REQUEST_DELETE = 1;
 
     @BindView(R.id.crime_recycle_view)
     RecyclerView mCrimeRecycleView;
@@ -96,7 +99,7 @@ public class CrimeListFragment extends Fragment {
                 @Override
                 public void onClick(View view) {
                     Intent intent = CrimePagerActivity.newIntent(getActivity(), mCrime.getId());
-                    startActivity(intent);
+                    startActivityForResult(intent, REQUEST_DELETE);
                 }
             });
         }
@@ -141,11 +144,11 @@ public class CrimeListFragment extends Fragment {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.fragment_crime_list, menu);
 
-        MenuItem subtilteItem = menu.findItem(R.id.menu_item_show_subtitle);
+        MenuItem subtitleItem = menu.findItem(R.id.menu_item_show_subtitle);
         if (mSubtitleVisible) {
-            subtilteItem.setTitle(R.string.hide_subtitle);
+            subtitleItem.setTitle(R.string.hide_subtitle);
         } else {
-            subtilteItem.setTitle(R.string.show_subtitle);
+            subtitleItem.setTitle(R.string.show_subtitle);
         }
     }
 
@@ -156,7 +159,7 @@ public class CrimeListFragment extends Fragment {
                 Crime crime = new Crime();
                 CrimeLab.get(getActivity()).addCrime(crime);
                 Intent intent = CrimePagerActivity.newIntent(getActivity(), crime.getId());
-                startActivity(intent);
+                startActivityForResult(intent, REQUEST_DELETE);
                 return true;
             case R.id.menu_item_show_subtitle:
                 mSubtitleVisible = !mSubtitleVisible;
@@ -181,5 +184,18 @@ public class CrimeListFragment extends Fragment {
         activity.getSupportActionBar().setTitle(subtitle);
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != Activity.RESULT_OK) {
+            return;
+        }
+        if (requestCode == REQUEST_DELETE) {
+            UUID crimeId = (UUID) data.getSerializableExtra(CrimeFragment.DELETE_CRIME_ID);
+            Crime crime = CrimeLab.get(getActivity()).getCrime(crimeId);
+            CrimeLab.get(getActivity()).removeCrime(crime);
+            updateUI();
+        }
+    }
 }
 

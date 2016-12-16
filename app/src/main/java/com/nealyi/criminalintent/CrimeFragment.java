@@ -10,6 +10,9 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -32,6 +35,7 @@ public class CrimeFragment extends Fragment {
     private static final String ARG_CRIME_ID = "crime_id";
     private static final String DIALOG_DATE = "DialogDate";
     private static final int REQUEST_DATE = 0;
+    public static final String DELETE_CRIME_ID = "delete_crime_id";
 
     @BindView(R.id.crime_title)
     EditText mTitleField;
@@ -57,7 +61,7 @@ public class CrimeFragment extends Fragment {
 //        UUID crimeId = (UUID) getActivity().getIntent().getSerializableExtra(CrimeActivity.EXTRA_CRIME_ID);
         UUID crimeId = (UUID) getArguments().getSerializable(ARG_CRIME_ID);
         mCrime = CrimeLab.get(getActivity()).getCrime(crimeId);
-
+        setHasOptionsMenu(true);
     }
 
     @Nullable
@@ -130,7 +134,28 @@ public class CrimeFragment extends Fragment {
     public void onClick() {
         FragmentManager manager = getFragmentManager();
         DatePickerFragment dialog = DatePickerFragment.newInstance(mCrime.getDate());
-        dialog.setTargetFragment(CrimeFragment.this,REQUEST_DATE);
+        dialog.setTargetFragment(CrimeFragment.this, REQUEST_DATE);
         dialog.show(manager, DIALOG_DATE);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.fragment_crime, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.delete_crime:
+                Intent intent = new Intent();
+                intent.putExtra(DELETE_CRIME_ID, mCrime.getId());
+                getParentFragment();
+                getActivity().setResult(Activity.RESULT_OK, intent);
+                getActivity().finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }
