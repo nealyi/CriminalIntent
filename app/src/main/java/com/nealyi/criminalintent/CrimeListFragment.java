@@ -14,6 +14,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
@@ -112,7 +113,28 @@ public class CrimeListFragment extends Fragment {
         }
     }
 
-    private class CrimeAdapter extends RecyclerView.Adapter<CrimeHolder> {
+    class EmptyHolder extends RecyclerView.ViewHolder {
+
+        @BindView(R.id.btn_new_crime)
+        Button mButtonNewCrime;
+
+        public EmptyHolder(View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+            mButtonNewCrime.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Crime crime = new Crime();
+                    CrimeLab.get(getActivity()).addCrime(crime);
+                    Intent intent = CrimePagerActivity.newIntent(getActivity(), crime.getId());
+                    startActivityForResult(intent, REQUEST_DELETE);
+                }
+            });
+        }
+    }
+
+    private class CrimeAdapter extends RecyclerView.Adapter {
+        private static final int VIEW_TYPE = -1;
 
         private List<Crime> mCrimes;
 
@@ -121,21 +143,36 @@ public class CrimeListFragment extends Fragment {
         }
 
         @Override
-        public CrimeHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
-            View view = layoutInflater.inflate(R.layout.list_item_crime, parent, false);
+            View view;
+            if (viewType == VIEW_TYPE) {
+                view = layoutInflater.inflate(R.layout.list_item_crime_empty, parent, false);
+                return new EmptyHolder(view);
+            }
+            view = layoutInflater.inflate(R.layout.list_item_crime, parent, false);
             return new CrimeHolder(view);
         }
 
         @Override
-        public void onBindViewHolder(CrimeHolder holder, int position) {
-            Crime crime = mCrimes.get(position);
-            holder.bindCrime(crime);
+        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+            if (holder instanceof CrimeHolder) {
+                Crime crime = mCrimes.get(position);
+                ((CrimeHolder) holder).bindCrime(crime);
+            }
         }
 
         @Override
         public int getItemCount() {
-            return mCrimes.size();
+            return mCrimes.size() > 0 ? mCrimes.size() : 1;
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            if (mCrimes.size() <= 0) {
+                return VIEW_TYPE;
+            }
+            return super.getItemViewType(position);
         }
     }
 
